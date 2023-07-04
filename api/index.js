@@ -40,6 +40,32 @@ app.post("/api/login", (req, res) =>{
     }
 });
 
+const verify = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if(authHeader){
+        const token = authHeader.split(" ")[1];
+
+        jwt.verify(token, "mySecretKey", (err, user) => {         // verify finction takes two arg - token and secret key and return decode payload (either user or error) and next callback function runs on it.
+            if(err){
+                return res.status(403).json("Token is not valid"); 
+            }
+
+            req.user = user;
+            next();
+        });
+    } else {
+        res.status(401).json("You are not authenticated");
+    }
+};
+
+app.delete("/api/users/:userId", verify, (req,res) => {
+    if(req.user.id === req.params.userId || req.user.isAdmin){
+        res.status(200).json("User has been deleted.");
+    } else {
+        res.status(403).json("You are not allowed to delete this user!");
+    }
+});
+
 app.listen(3000, () => {
     console.log("backend server is running");
 });
