@@ -53,7 +53,7 @@ const generateAccessToken = (user) => {
     return jwt.sign(
         {id: user.id, isAdmin: user.isAdmin}, 
         "mySecretKey",
-        {expiresIn: "30s"}
+        {expiresIn: "300s"}
     ); // signature, two parameter - payload and secret key (create env file)
 };
 
@@ -112,6 +112,12 @@ app.delete("/api/users/:userId", verify, (req,res) => {
         res.status(403).json("You are not allowed to delete this user!");
     }
 });
+
+app.post("/api/logout", verify, (req, res) => {
+    const refreshToken = req.body.token;
+    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+    res.status(200).json("You logged out successfully.");
+})
 
 app.listen(3000, () => {
     console.log("backend server is running");
